@@ -8,13 +8,34 @@ import { useEffect, useState } from "react";
 import ClientService from "../service/ClientService";
 import Link from "next/link";
 
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
 export const ListClientsComponent = () => {
     const [clientes, setClientes] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
     const [detail, setDetail] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8;
+    const [searchTerm, setSearchTerm] = useState("");
+    const [exportFormat, setExportFormat] = useState("csv");
+    const [itemsPerPage, setItemsPerPage] = useState(8);
+
+    useEffect(() => {
+        const updateItemsPerPage = () => {
+            if (window.innerWidth < 768) {
+                setItemsPerPage(2); // Celular
+            } else {
+                setItemsPerPage(8); // Escritorio
+            }
+        };
+
+        updateItemsPerPage();
+        window.addEventListener("resize", updateItemsPerPage); 
+
+        return () => window.removeEventListener("resize", updateItemsPerPage); 
+    }, []);
 
     useEffect(() => {
         listClients();
@@ -52,26 +73,85 @@ export const ListClientsComponent = () => {
         setDetail('');
     };
 
-    const totalPages = Math.ceil(clientes.length / itemsPerPage);
+    const filteredClients = clientes.filter(cliente =>
+        cliente.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cliente.lastname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cliente.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const clientesPaginated = clientes.slice(startIndex, endIndex);
+    const clientesPaginated = filteredClients.slice(startIndex, endIndex);
+
+    const exportToCSV = (data, filename = "clientes.csv") => {
+        const csvContent =
+            "data:text/csv;charset=utf-8," +
+            ["ID,Nombre,Apellido,Email"]
+                .concat(data.map(cliente =>
+                    `${cliente.id},${cliente.name},${cliente.lastname},${cliente.email}`
+                ))
+                .join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
+        link.click();
+    };
+
+    const exportToExcel = (data, filename = "clientes.xlsx") => {
+        const worksheet = XLSX.utils.json_to_sheet(data.map(cliente => ({
+            ID: cliente.id,
+            Nombre: cliente.name,
+            Apellido: cliente.lastname,
+            Email: cliente.email
+        })));
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Clientes");
+        XLSX.writeFile(workbook, filename);
+    };
+
+    const exportToPDF = (data, filename = "clientes.pdf") => {
+        const doc = new jsPDF();
+        doc.text("Lista de Clientes", 20, 10);
+
+        autoTable(doc, {
+            head: [["ID", "Nombre", "Apellido", "Email"]],
+            body: data.map(cliente => [cliente.id, cliente.name, cliente.lastname, cliente.email]),
+        });
+
+        doc.save(filename);
+    };
 
     return (
         <>
-            <div className="p-4">
+            <div className="p-4 ">
                 <div className=" text-center p-4 font-bold text-black text-3xl">
                     <h1>LISTA DE CLIENTES</h1>
                 </div>
-                <div className="flex justify-center pt-4 pb-4 pl-72 pr-72 text-center">
+
+                {/* Búsqueda */}
+                <div className="flex justify-center ">
+                    <input
+                        type="text"
+                        placeholder="Buscar por nombre, apellido o email..."
+                        className="border p-2 w-96 rounded-lg"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+
+                <div className=" overflow-x-auto flex sm:justify-center pt-4 pb-4 sm:pl-72 sm:pr-72 text-center">
                     <table className="min-w-full border-collapse border border-gray-300 shadow-lg rounded-lg">
                         <thead className=" text-white">
                             <tr>
-                                <th className="px-4 border py-2 border-gray-300 text-black">ID</th>
-                                <th className="px-4 border py-2 border-gray-300 text-black">Nombre</th>
-                                <th className="px-4 border py-2 border-gray-300 text-black">Apellido</th>
-                                <th className="px-4 border py-2 border-gray-300 text-black">Email</th>
-                                <th className="px-4 border py-2 border-gray-300 text-black">Acciones</th>
+                                <th className="px-2 sm:px-4 border py-2 border-gray-300 text-black">ID</th>
+                                <th className="px-2 sm:px-4 border py-2 border-gray-300 text-black">Nombre</th>
+                                <th className="px-2 sm:px-4 border py-2 border-gray-300 text-black">Apellido</th>
+                                <th className="px-2 sm:px-4 border py-2 border-gray-300 text-black">Email</th>
+                                <th className="px-2 sm:px-4 border py-2 border-gray-300 text-black">Acciones</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white">
@@ -150,11 +230,30 @@ export const ListClientsComponent = () => {
                     </button>
                 </div>
 
-                <div className="pt-4 pr-72 flex justify-end gap-4">
+                <div className="pt-4 pr-72 flex sm:justify-end gap-4">
                     <Link href='/add-clients' className=" bg-blue-900 text-white py-2 px-4 rounded-md hover:bg-blue-800 transition">Agregar cliente</Link>
-                    <a href='#' className=" bg-blue-900 text-white py-2 px-4 rounded-md hover:bg-blue-800 transition">Exportar datos</a>
+                    <select
+                        className="border p-2 rounded-md"
+                        onChange={(e) => setExportFormat(e.target.value)}
+                        value={exportFormat}
+                    >
+                        <option value="csv">CSV</option>
+                        <option value="excel">Excel</option>
+                        <option value="pdf">PDF</option>
+                    </select>
+
+                    <button
+                        onClick={() => {
+                            if (exportFormat === "csv") exportToCSV(clientes);
+                            else if (exportFormat === "excel") exportToExcel(clientes);
+                            else if (exportFormat === "pdf") exportToPDF(clientes);
+                        }}
+                        className="bg-blue-900 text-white py-2 px-4 rounded-md hover:bg-blue-800 transition"
+                    >
+                        Exportar datos
+                    </button>
                 </div>
             </div>
         </>
-    );
-}
+        );
+    }

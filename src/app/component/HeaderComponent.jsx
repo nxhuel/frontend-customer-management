@@ -13,7 +13,7 @@ export const HeaderComponent = () => {
         <>
             <div>
                 <header>
-                    <nav className="bg-cyan-700 p-5 text-white font-bold text-4xl">
+                    <nav className=" bg-cyan-700 p-2 sm:p-5 text-white font-bold text-3xl sm:text-4xl">
                         <div className='flex justify-between'>
 
                             <button
@@ -25,13 +25,13 @@ export const HeaderComponent = () => {
                             <a className='flex items-center' href="/">GC</a>
                         </div>
                     </nav>
-                    <div className={`bg-cyan-700 w-64 h-full fixed transition-transform duration-300   ${isOpen ? "translate-x-0" : "-translate-x-72"}`}>
+                    <div className={`z-10 bg-cyan-700 sm:w-64 h-full fixed transition-transform duration-300   ${isOpen ? "translate-x-0" : "-translate-x-72"}`}>
                         <div className="flex flex-col p-5 space-y-4">
                             <a href="/" className="text-white text-lg font-semibold hover:bg-cyan-800 p-2 rounded">Inicio</a>
                             <a href="/clients" className="text-white text-lg font-semibold hover:bg-cyan-800 p-2 rounded">Lista de clientes</a>
                             <a href="/add-clients" className="text-white text-lg font-semibold hover:bg-cyan-800 p-2 rounded">Registrar clientes</a>
                             <a href="/history" className="text-white text-lg font-semibold hover:bg-cyan-800 p-2 rounded">Historial de clientes</a>
-                            <a href="#" className="text-white text-lg font-semibold hover:bg-cyan-800 p-2 rounded">Contáctame</a>
+                            <a href="mailto:nahueltisera03@gmail.com" className="text-white text-lg font-semibold hover:bg-cyan-800 p-2 rounded" target='_blank'>Contáctame</a>
                         </div>
                     </div>
                 </header>

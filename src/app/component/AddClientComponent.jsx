@@ -50,18 +50,18 @@ export const AddClientComponent = ({ id }) => {
         <>
             <div>
                 <div className="flex flex-col items-center p-4">
-                    <h1 className=" font-bold text-4xl p-12">
+                    <h1 className="text-center font-bold text-3xl p-4 sm:p-12">
                         {id ? "Actualizar Cliente" : "Registrar Cliente"}
                     </h1>
-                    <form action="#" method="POST" className="bg-white p-6 rounded-lg shadow-md space-y-4">
-                        <label className="block text-gray-700 font-medium">Nombre:</label>
+                    <form action="#" method="POST" className="bg-white p-4 sm:p-6 rounded-lg shadow-md space-y-2 sm:space-y-4">
+                        <label className="block text-gray-700 sm:font-medium">Nombre:</label>
                         <input
                             type="text"
                             placeholder="Digite nombre del cliente"
                             name="name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-1 sm:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
 
                         <label className="block text-gray-700 font-medium">Apellido:</label>
@@ -71,7 +71,7 @@ export const AddClientComponent = ({ id }) => {
                             name="lastname"
                             value={lastname}
                             onChange={(e) => setLastname(e.target.value)}
-                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-1 sm:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
 
                         <label className="block text-gray-700 font-medium">Email:</label>
@@ -81,7 +81,7 @@ export const AddClientComponent = ({ id }) => {
                             name="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-1 sm:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
 
                         <label className="block text-gray-700 font-medium">Detalles:</label>
@@ -91,18 +91,18 @@ export const AddClientComponent = ({ id }) => {
                             name="detail"
                             value={detail}
                             onChange={(e) => setDetail(e.target.value)}
-                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-1 sm:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-
+        
                         <button
                             onClick={(e) => saveOrUpdateClient(e)}
-                            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"
+                            className="sm:w-full bg-blue-500 text-white py-1 sm:py-2 px-4 rounded-md hover:bg-blue-600 transition"
                         >
                             Guardar
                         </button>
                         &nbsp;
                         <Link href="/clients">
-                            <button className="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition">
+                            <button className="sm:w-full bg-red-500 text-white py-1 sm:py-2 px-4 rounded-md hover:bg-red-600 transition">
                                 Cancelar
                             </button>
                         </Link>
